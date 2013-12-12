@@ -1,0 +1,6 @@
+display:
+  name: health
+  list: health
+  #sidebar: deaths
+developer:
+  debugging: false
