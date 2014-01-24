@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<project name="SimplyUHC" default="jar">
-  <target name="jar" description="jar">
-    <jar jarfile="/Users/kovuthehusky/Resources/Minecraft/plugins/SimplyUHC.jar">
-      <fileset dir="target/classes/" />
-    </jar>
-  </target>
-</project>
