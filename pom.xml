@@ -3,13 +3,18 @@
   <groupId>com.codeski</groupId>
   <artifactId>simplyuhc</artifactId>
   <version>1.0.0</version>
+  <packaging>jar</packaging>
   <name>Simply UHC</name>
+  <description>A lightweight, easy way to play Minecraft Ultra Hardcore with your friends.</description>
   <repositories>
     <repository>
       <id>bukkit-repo</id>
       <url>http://repo.bukkit.org/content/groups/public/</url>
     </repository>
   </repositories>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
   <build>
     <finalName>SimplyUHC-${project.version}</finalName>
     <plugins>
@@ -20,7 +25,7 @@
         <configuration>
           <encoding>UTF-8</encoding>
         </configuration>
-      </plugin>      
+      </plugin>
     </plugins>
     <resources>
       <resource>
@@ -33,7 +38,12 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
-      <version>1.7.2-R0.1-SNAPSHOT</version>
+      <version>1.7.9-R0.1-SNAPSHOT</version>
     </dependency>
   </dependencies>
+  <url>http://codeski.com/simplyuhc</url>
+  <organization>
+    <name>Codeski</name>
+    <url>http://codeski.com</url>
+  </organization>
 </project>
