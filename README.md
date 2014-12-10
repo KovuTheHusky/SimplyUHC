@@ -4,7 +4,9 @@ Bukkit plugin that gives you a lightweight, easy way to play Minecraft Ultra Har
 
 ## Features
 
-The plugin will handle game rules such as no natural regeneration, teleport players, lock them in place and blind them until the match starts, and kick players as they die. It will also build bedrock walls and set up a world border if you have WorldBorder installed. Once the match is over all players are allowed to join again.
+* Handles game rules including game mode, difficulty, and natural regeration.
+* Sets up a world border and spreads players within the game area.
+* Drops player heads upon death and sets dead players to spectator mode.
 
 ## Commands
 
@@ -30,6 +32,14 @@ The following configuration values are also available for the display node:
     Can display health, kills, or deaths in the side bar.
 
 You can also place a hash in front of any of the nodes to comment it out and disable it.
+
+## Links
+
+* Website: <http://codeski.com/#simplyuhc>
+* Issues: <https://github.com/Codeski/SimplyUHC/issues>
+* Source: <https://github.com/Codeski/SimplyUHC>
+* Builds: <https://travis-ci.org/SimplyUHC/FixChat>
+* Bukkit: <http://dev.bukkit.org/bukkit-plugins/simplyuhc>
 
 ## License
 
