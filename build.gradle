@@ -14,10 +14,10 @@ processResources {
 
 repositories {
   maven {
-    url = 'http://repo.bukkit.org/content/groups/public/'
+    url = 'https://hub.spigotmc.org/nexus/content/groups/public/'
   }
 }
 
 dependencies {
-  compile 'org.bukkit:bukkit:1.7.2-R0.3'
+  compile 'org.bukkit:bukkit:1.8-R0.1-SNAPSHOT'
 }
