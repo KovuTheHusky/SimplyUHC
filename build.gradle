@@ -1,0 +1,23 @@
+import org.apache.tools.ant.filters.*
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+version = '1.0.2-SNAPSHOT'
+sourceCompatibility = 1.6
+
+processResources {
+  filter ReplaceTokens, tokens: [
+  "version": project.property("version")
+  ]
+}
+
+repositories {
+  maven {
+    url = 'http://repo.bukkit.org/content/groups/public/'
+  }
+}
+
+dependencies {
+  compile 'org.bukkit:bukkit:1.7.2-R0.3'
+}
