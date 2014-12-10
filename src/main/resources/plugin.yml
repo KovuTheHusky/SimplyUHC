@@ -1,6 +1,6 @@
 name: SimplyUHC
 main: com.codeski.simplyuhc.SimplyUHC
-version: ${project.version}
+version: @version@
 commands:
   uhc:
     description: Stop or start an Ultra Hardcore game
