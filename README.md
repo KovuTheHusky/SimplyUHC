@@ -38,7 +38,7 @@ You can also place a hash in front of any of the nodes to comment it out and dis
 * Website: <http://codeski.com/#simplyuhc>
 * Issues: <https://github.com/Codeski/SimplyUHC/issues>
 * Source: <https://github.com/Codeski/SimplyUHC>
-* Builds: <https://travis-ci.org/SimplyUHC/FixChat>
+* Builds: <https://travis-ci.org/Codeski/SimplyUHC>
 * Bukkit: <http://dev.bukkit.org/bukkit-plugins/simplyuhc>
 
 ## License
