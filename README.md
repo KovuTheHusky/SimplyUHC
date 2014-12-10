@@ -1,6 +1,6 @@
 # SimplyUHC [![Build Status](https://travis-ci.org/Codeski/SimplyUHC.svg?branch=master)](https://travis-ci.org/Codeski/SimplyUHC)
 
-Bukkit plugin that gives you a lightweight, easy way to play Minecraft Ultra Hardcore with your friends.
+A plugin for Bukkit servers that is a lightweight, easy way to play Minecraft Ultra Hardcore with friends.
 
 ## Features
 
