@@ -1,10 +1,37 @@
-SimplyUHC
-====================
+# SimplyUHC
 
 Bukkit plugin that gives you a lightweight, easy way to play Minecraft Ultra Hardcore with your friends.
 
-License
---------------------
+## Features
+
+The plugin will handle game rules such as no natural regeneration, teleport players, lock them in place and blind them until the match starts, and kick players as they die. It will also build bedrock walls and set up a world border if you have WorldBorder installed. Once the match is over all players are allowed to join again.
+
+## Commands
+
+Just use the following commands to start and stop matches:
+
+* `/uhc start <radius> [countdown]`
+* `/uhc stop`
+
+## Configuration
+
+The following configuration values are also available for the display node:
+
+**name**
+
+    Can display health, kills, or deaths in player name plates.
+
+**list**
+
+    Can display health, kills, or deaths in the player list.
+
+**sidebar**
+
+    Can display health, kills, or deaths in the side bar.
+
+You can also place a hash in front of any of the nodes to comment it out and disable it.
+
+## License
 
 Copyright © 2013 Kevin Breslin
 
