@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -30,6 +31,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import com.google.common.base.Joiner;
 
 public class SimplyUHC extends JavaPlugin implements Listener {
 	private class SimplyTimer extends TimerTask {
@@ -147,9 +150,8 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 				FireworkMeta fireworkMetadata = firework.getFireworkMeta();
 				FireworkEffect fireworkEffect = FireworkEffect.builder().with(Type.BALL_LARGE).withColor(Color.YELLOW).withTrail().flicker(true).build();
 				fireworkMetadata.addEffect(fireworkEffect);
-				fireworkMetadata.setPower(2);
+				fireworkMetadata.setPower(0);
 				firework.setFireworkMeta(fireworkMetadata);
-				players.clear();
 				for (Player p : server.getOnlinePlayers())
 					p.setGameMode(GameMode.SPECTATOR);
 				server.broadcastMessage(players.get(0).getName() + " is the winner!");
@@ -190,7 +192,12 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 	private void start(int size, int countdown) {
 		players = new ArrayList<Player>(server.getOnlinePlayers());
 		server.dispatchCommand(console, "worldborder set " + size);
-		server.dispatchCommand(console, "spreadplayers " + world.getSpawnLocation().getBlockX() + " " + world.getSpawnLocation().getBlockZ() + " " + size / players.size() + " " + size + " true");
+		String[] names = new String[players.size()];
+		for (int i = 0; i < names.length; ++i)
+			names[i] = players.get(i).getName();
+		String temp = "spreadplayers " + world.getSpawnLocation().getBlockX() + " " + world.getSpawnLocation().getBlockZ() + " " + size / 2 / players.size() + " " + size / 2 + " false " + Joiner.on(' ').join(names);
+		Bukkit.broadcastMessage(temp);
+		server.dispatchCommand(console, temp);
 		for (Player p : players)
 			this.freezePlayer(p, countdown);
 		server.broadcastMessage("Game begins in " + countdown / 20 + " seconds... Get ready!");
@@ -202,6 +209,7 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 	private void stop() {
 		server.broadcastMessage("The game has been stopped.");
 		inProgress = false;
+		players.clear();
 		timer.cancel();
 		server.dispatchCommand(console, "gamerule naturalRegeneration true");
 		server.dispatchCommand(console, "gamerule doDaylightCycle false");
