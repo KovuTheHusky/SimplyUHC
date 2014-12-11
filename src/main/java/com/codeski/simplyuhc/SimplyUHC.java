@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
@@ -43,9 +42,7 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 			if (count > 0)
 				server.broadcastMessage(10 * count + " minutes passed.");
 			else {
-				players = new ArrayList<Player>(server.getOnlinePlayers());
 				for (Player p : players) {
-					p.setGameMode(GameMode.SURVIVAL);
 					SimplyUHC.this.healPlayer(p);
 					SimplyUHC.this.feedPlayer(p);
 					SimplyUHC.this.clearInventory(p);
@@ -57,8 +54,8 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 				server.dispatchCommand(console, "scoreboard objectives add deaths deathCount Deaths");
 				server.dispatchCommand(console, "scoreboard objectives add health health Health");
 				server.dispatchCommand(console, "scoreboard objectives add kills health totalPlayerKills");
-				if (configuration.getString("display.name") != null)
-					server.dispatchCommand(console, "scoreboard objectives setdisplay name " + configuration.getString("display.name"));
+				if (configuration.getString("display.belowName") != null)
+					server.dispatchCommand(console, "scoreboard objectives setdisplay belowName " + configuration.getString("display.belowName"));
 				if (configuration.getString("display.list") != null)
 					server.dispatchCommand(console, "scoreboard objectives setdisplay list " + configuration.getString("display.list"));
 				if (configuration.getString("display.sidebar") != null)
@@ -195,11 +192,11 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 		String[] names = new String[players.size()];
 		for (int i = 0; i < names.length; ++i)
 			names[i] = players.get(i).getName();
-		String temp = "spreadplayers " + world.getSpawnLocation().getBlockX() + " " + world.getSpawnLocation().getBlockZ() + " " + size / 2 / players.size() + " " + size / 2 + " false " + Joiner.on(' ').join(names);
-		Bukkit.broadcastMessage(temp);
-		server.dispatchCommand(console, temp);
-		for (Player p : players)
+		server.dispatchCommand(console, "spreadplayers " + world.getSpawnLocation().getBlockX() + " " + world.getSpawnLocation().getBlockZ() + " " + size / 2 / players.size() + " " + size / 2 + " false " + Joiner.on(' ').join(names));
+		for (Player p : players) {
+			p.setGameMode(GameMode.SURVIVAL);
 			this.freezePlayer(p, countdown);
+		}
 		server.broadcastMessage("Game begins in " + countdown / 20 + " seconds... Get ready!");
 		timer = new Timer();
 		timer.scheduleAtFixedRate(new SimplyTimer(), countdown / 20 * 1000, 600000);
