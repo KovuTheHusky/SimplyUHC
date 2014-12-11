@@ -53,7 +53,7 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 				server.dispatchCommand(console, "gamerule doMobSpawning true");
 				server.dispatchCommand(console, "scoreboard objectives add deaths deathCount Deaths");
 				server.dispatchCommand(console, "scoreboard objectives add health health Health");
-				server.dispatchCommand(console, "scoreboard objectives add kills health totalPlayerKills");
+				server.dispatchCommand(console, "scoreboard objectives add kills totalPlayerKills Kills");
 				if (configuration.getString("display.belowName") != null)
 					server.dispatchCommand(console, "scoreboard objectives setdisplay belowName " + configuration.getString("display.belowName"));
 				if (configuration.getString("display.list") != null)
