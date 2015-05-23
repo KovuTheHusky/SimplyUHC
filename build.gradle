@@ -5,8 +5,7 @@ apply plugin: 'eclipse'
 
 group = 'com.codeski'
 version = '1.0.2-SNAPSHOT'
-sourceCompatibility = '1.6'
-targetCompatibility = '1.6'
+sourceCompatibility = '1.7'
 
 processResources {
   filter ReplaceTokens, tokens: [
