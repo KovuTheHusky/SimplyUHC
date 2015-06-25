@@ -39,8 +39,12 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 
 		@Override
 		public void run() {
-			if (count > 0)
-				server.broadcastMessage(10 * count + " minutes passed.");
+			if (count >= 60 && count % 6 == 0)
+				server.broadcastMessage(count / 6 + " hours passed.");
+			else if (count >= 60)
+				server.broadcastMessage(count / 6 + " hours, " + count % 6 * 10 + " minutes passed.");
+			else if (count > 0)
+				server.broadcastMessage(count * 10 + " minutes passed.");
 			else {
 				for (Player p : players) {
 					SimplyUHC.this.healPlayer(p);
@@ -82,8 +86,7 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 				sender.sendMessage(ChatColor.RED + "Usage: /uhc <command>");
 				sender.sendMessage(ChatColor.RED + "Commands: start stop");
 				return true;
-			}
-			else if (args[0].equalsIgnoreCase("start")) {
+			} else if (args[0].equalsIgnoreCase("start")) {
 				if (inProgress)
 					sender.sendMessage("There is already a game in progress.");
 				else if (server.getOnlinePlayers().size() < 2)
@@ -153,8 +156,7 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 					p.setGameMode(GameMode.SPECTATOR);
 				server.broadcastMessage(players.get(0).getName() + " is the winner!");
 				this.stop();
-			}
-			else
+			} else
 				event.getEntity().setGameMode(GameMode.SPECTATOR);
 		}
 	}
@@ -192,7 +194,8 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 		String[] names = new String[players.size()];
 		for (int i = 0; i < names.length; ++i)
 			names[i] = players.get(i).getName();
-		server.dispatchCommand(console, "spreadplayers " + world.getSpawnLocation().getBlockX() + " " + world.getSpawnLocation().getBlockZ() + " " + size / 2 / players.size() + " " + size / 2 + " false " + Joiner.on(' ').join(names));
+		int min = size / (int) (Math.sqrt(players.size()) + 1) - 1;
+		server.dispatchCommand(console, "spreadplayers " + world.getSpawnLocation().getBlockX() + " " + world.getSpawnLocation().getBlockZ() + " " + min + " " + size / 2 + " false " + Joiner.on(' ').join(names));
 		for (Player p : players) {
 			p.setGameMode(GameMode.SURVIVAL);
 			this.freezePlayer(p, countdown);
