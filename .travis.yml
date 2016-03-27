@@ -3,8 +3,9 @@ jdk:
   - oraclejdk7
 deploy:
   provider: releases
-  api-key: "8638657fcd2e4e9d3ad9e4173733d41b8e74d1c5"
-  file-glob: true
+  api_key:
+    secure: "Z6097Tkf1o8Mx700IlPPnRMtxkwV26FtSV/YfISqGwuAauIaOETTde8DEQR3k5Y5z1XQtnLtNUgrrvIrl6MXNvXhnHq5o7R4yiVBT1prh9BQYqrRpnuWY/nU3FNDXnqnw2I+CLSKfafsAkzNPlT0rOV25DQUF14TJN9Jw4jeNd8="
+  file_glob: true
   file: "build/libs/SimplyUHC-*.jar"
   skip_cleanup: true
   on:
