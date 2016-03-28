@@ -16,12 +16,12 @@ processResources {
   ]
 }
 
+dependencies {
+  compile 'org.bukkit:bukkit:1.8-R0.1-SNAPSHOT'
+}
+
 repositories {
   maven {
     url 'https://hub.spigotmc.org/nexus/content/groups/public/'
   }
-}
-
-dependencies {
-  compile 'org.bukkit:bukkit:1.8-R0.1-SNAPSHOT'
 }
