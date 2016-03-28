@@ -1,7 +1,10 @@
 import org.apache.tools.ant.filters.*
 
-apply plugin: 'java'
-apply plugin: 'eclipse'
+plugins {
+  id 'java'
+  id 'eclipse'
+  id 'idea'
+}
 
 group = 'com.codeski'
 version = '1.0.2-SNAPSHOT'
@@ -15,7 +18,7 @@ processResources {
 
 repositories {
   maven {
-    url = 'https://hub.spigotmc.org/nexus/content/groups/public/'
+    url 'https://hub.spigotmc.org/nexus/content/groups/public/'
   }
 }
 
