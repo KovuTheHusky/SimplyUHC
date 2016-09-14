@@ -177,7 +177,7 @@ public class SimplyUHC extends JavaPlugin implements Listener {
     }
 
     private void freezePlayer(Player player, int ticks) {
-        ArrayList<PotionEffect> potions = new ArrayList<PotionEffect>();
+        ArrayList<PotionEffect> potions = new ArrayList<>();
         for (PotionEffectType type : effects)
             potions.add(new PotionEffect(type, ticks, Byte.MAX_VALUE));
         player.addPotionEffects(potions);
@@ -188,7 +188,7 @@ public class SimplyUHC extends JavaPlugin implements Listener {
     }
 
     private void start(int size, int countdown) {
-        players = new ArrayList<Player>(server.getOnlinePlayers());
+        players = new ArrayList<>(server.getOnlinePlayers());
         server.dispatchCommand(console, "worldborder set " + size);
         String[] names = new String[players.size()];
         for (int i = 0; i < names.length; ++i)
