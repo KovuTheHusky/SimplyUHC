@@ -71,7 +71,19 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 
     private FileConfiguration configuration;
     private CommandSender console;
-    private final PotionEffectType[] effects = { PotionEffectType.SLOW, PotionEffectType.SLOW_DIGGING, PotionEffectType.DAMAGE_RESISTANCE, PotionEffectType.INVISIBILITY, PotionEffectType.BLINDNESS };
+    private final PotionEffectType[] effects = {
+        PotionEffectType.SLOW,
+        PotionEffectType.SLOW_DIGGING,
+        PotionEffectType.HEAL,
+        PotionEffectType.REGENERATION,
+        PotionEffectType.DAMAGE_RESISTANCE,
+        PotionEffectType.FIRE_RESISTANCE,
+        PotionEffectType.WATER_BREATHING,
+        PotionEffectType.INVISIBILITY,
+        PotionEffectType.BLINDNESS,
+        PotionEffectType.WEAKNESS,
+        PotionEffectType.SATURATION
+    };
     private boolean inProgress = false;
     private ArrayList<Player> players;
     private Server server;
