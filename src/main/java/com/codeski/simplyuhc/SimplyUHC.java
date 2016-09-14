@@ -128,7 +128,7 @@ public class SimplyUHC extends JavaPlugin implements Listener {
         server.dispatchCommand(console, "gamerule naturalRegeneration true");
         server.dispatchCommand(console, "gamerule doDaylightCycle false");
         server.dispatchCommand(console, "gamerule doMobSpawning false");
-        server.dispatchCommand(console, "time set 0");
+        server.dispatchCommand(console, "time set 6000");
         for (Entity e : server.getWorld("world").getLivingEntities())
             if (e instanceof Monster)
                 e.remove();
