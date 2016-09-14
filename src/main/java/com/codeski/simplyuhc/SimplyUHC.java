@@ -148,27 +148,27 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 
     @EventHandler
     public void onPlayerDeath(final PlayerDeathEvent event) {
-        if (inProgress) {
-            ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-            SkullMeta skullMetadata = (SkullMeta) skull.getItemMeta();
-            skullMetadata.setOwner(event.getEntity().getName());
-            skullMetadata.setDisplayName(ChatColor.RESET + event.getEntity().getName());
-            skull.setItemMeta(skullMetadata);
-            event.getDrops().add(skull);
-            players.remove(event.getEntity());
-            if (players.size() == 1) {
-                Firework firework = (Firework) world.spawnEntity(players.get(0).getLocation(), EntityType.FIREWORK);
-                FireworkMeta fireworkMetadata = firework.getFireworkMeta();
-                FireworkEffect fireworkEffect = FireworkEffect.builder().with(Type.BALL_LARGE).withColor(Color.YELLOW).withTrail().flicker(true).build();
-                fireworkMetadata.addEffect(fireworkEffect);
-                fireworkMetadata.setPower(0);
-                firework.setFireworkMeta(fireworkMetadata);
-                for (Player p : server.getOnlinePlayers())
-                    p.setGameMode(GameMode.SPECTATOR);
-                server.broadcastMessage(players.get(0).getName() + " is the winner!");
-                this.stop();
-            } else
-                event.getEntity().setGameMode(GameMode.SPECTATOR);
+        if (!inProgress)
+            return;
+        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        SkullMeta skullMetadata = (SkullMeta) skull.getItemMeta();
+        skullMetadata.setOwner(event.getEntity().getName());
+        skullMetadata.setDisplayName(ChatColor.RESET + event.getEntity().getName());
+        skull.setItemMeta(skullMetadata);
+        event.getDrops().add(skull);
+        players.remove(event.getEntity());
+        event.getEntity().setGameMode(GameMode.SPECTATOR);
+        if (players.size() < 2) {
+            Firework firework = (Firework) world.spawnEntity(players.get(0).getLocation(), EntityType.FIREWORK);
+            FireworkMeta fireworkMetadata = firework.getFireworkMeta();
+            FireworkEffect fireworkEffect = FireworkEffect.builder().with(Type.BALL_LARGE).withColor(Color.YELLOW).withTrail().flicker(true).build();
+            fireworkMetadata.addEffect(fireworkEffect);
+            fireworkMetadata.setPower(0);
+            firework.setFireworkMeta(fireworkMetadata);
+            for (Player p : server.getOnlinePlayers())
+                p.setGameMode(GameMode.SPECTATOR);
+            server.broadcastMessage(players.get(0).getName() + " is the winner!");
+            this.stop();
         }
     }
 
