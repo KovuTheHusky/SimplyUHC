@@ -4,7 +4,7 @@ A plugin for Bukkit servers that is a lightweight, easy way to play Minecraft Ul
 
 ## Features
 
-* Handles game rules including game mode, difficulty, and natural regeration.
+* Handles game rules including game mode, difficulty, and natural regeneration.
 * Sets up a world border and spreads players within the game area.
 * Drops player heads upon death and sets dead players to spectator mode.
 
