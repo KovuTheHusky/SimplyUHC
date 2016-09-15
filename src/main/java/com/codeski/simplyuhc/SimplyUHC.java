@@ -207,6 +207,7 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 
     private void start(int size, int countdown) {
         players = new ArrayList<>(server.getOnlinePlayers());
+        world.getWorldBorder().setCenter(world.getSpawnLocation().getX(), world.getSpawnLocation().getZ());
         world.getWorldBorder().setSize(size);
         String[] names = new String[players.size()];
         for (int i = 0; i < names.length; ++i)
