@@ -1,6 +1,6 @@
 display:
   belowName: health
   list: health
-  #sidebar: deaths
+  #sidebar: kills
 developer:
   debugging: false

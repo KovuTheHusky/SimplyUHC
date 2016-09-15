@@ -1,8 +1,7 @@
 package com.codeski.simplyuhc;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.List;
 
 import com.google.common.base.Joiner;
 import org.bukkit.ChatColor;
@@ -25,163 +24,166 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Scoreboard;
 
 public class SimplyUHC extends JavaPlugin implements Listener {
-    private class SimplyTimer extends TimerTask {
-        private int count = 0;
-
-        @Override
-        public void run() {
-            if (count >= 60 && count % 6 == 0)
-                server.broadcastMessage(count / 6 + " hours passed.");
-            else if (count >= 60)
-                server.broadcastMessage(count / 6 + " hours, " + count % 6 * 10 + " minutes passed.");
-            else if (count > 0)
-                server.broadcastMessage(count * 10 + " minutes passed.");
-            else {
-                for (Player p : players) {
-                    SimplyUHC.this.healPlayer(p);
-                    SimplyUHC.this.feedPlayer(p);
-                    SimplyUHC.this.clearInventory(p);
-                    SimplyUHC.this.unfreezePlayer(p);
-                }
-                world.setGameRuleValue("naturalRegeneration", "true");
-                world.setGameRuleValue("doDaylightCycle", "false");
-                world.setGameRuleValue("doMobSpawning", "false");
-                scoreboard.registerNewObjective("deaths", "deathCount");
-                scoreboard.getObjective("deaths").setDisplayName("Deaths");
-                scoreboard.registerNewObjective("health", "health");
-                scoreboard.getObjective("health").setDisplayName("Health");
-                scoreboard.registerNewObjective("kills", "totalPlayerKills");
-                scoreboard.getObjective("kills").setDisplayName("Kills");
-                if (configuration.getString("display.belowName") != null)
-                    scoreboard.getObjective(configuration.getString("display.belowName")).setDisplaySlot(DisplaySlot.BELOW_NAME);
-                if (configuration.getString("display.list") != null)
-                    scoreboard.getObjective(configuration.getString("display.list")).setDisplaySlot(DisplaySlot.PLAYER_LIST);
-                if (configuration.getString("display.sidebar") != null)
-                    scoreboard.getObjective(configuration.getString("display.sidebar")).setDisplaySlot(DisplaySlot.SIDEBAR);
-                server.broadcastMessage("The game has been started. Good luck!");
-            }
-            ++count;
-        }
-    }
-
-    private FileConfiguration configuration;
-    private final PotionEffectType[] effects = {
+    private final ArrayList<PotionEffect> potionEffects = new ArrayList<>();
+    private final PotionEffectType[] potionTypes = {
         PotionEffectType.SLOW,
         PotionEffectType.SLOW_DIGGING,
         PotionEffectType.HEAL,
         PotionEffectType.REGENERATION,
         PotionEffectType.DAMAGE_RESISTANCE,
-        PotionEffectType.FIRE_RESISTANCE,
-        PotionEffectType.WATER_BREATHING,
-        PotionEffectType.INVISIBILITY,
-        PotionEffectType.BLINDNESS,
         PotionEffectType.WEAKNESS,
         PotionEffectType.SATURATION
     };
-    private boolean inProgress = false;
-    private ArrayList<Player> players;
-    private Server server;
+
+    private FileConfiguration configuration;
     private Scoreboard scoreboard;
-    private Timer timer;
+    private Server server;
     private World world;
+
+    private boolean isPaused = false;
+    private boolean isStarted = false;
+    private List<Player> players = new ArrayList<>();
+    private List<Player> waiting = new ArrayList<>();
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("uhc"))
-            if (args.length < 1) {
-                sender.sendMessage(ChatColor.RED + "Usage: /uhc <command>");
-                sender.sendMessage(ChatColor.RED + "Commands: start stop");
-                return true;
-            } else if (args[0].equalsIgnoreCase("start")) {
-                if (inProgress)
-                    sender.sendMessage("There is already a game in progress.");
-                else if (server.getOnlinePlayers().size() < 2)
-                    sender.sendMessage("You need at least two players to start.");
-                else {
-                    int countdown = 30;
-                    switch (args.length) {
-                        case 3:
-                            countdown = Math.abs(Integer.parseInt(args[2]));
-                        case 2:
-                            this.start(Math.abs(Integer.parseInt(args[1])), countdown * 20);
-                            break;
-                        default:
-                            sender.sendMessage(ChatColor.RED + "Usage: /uhc start <size> [countdown]");
-                    }
+        if (cmd.getName().equalsIgnoreCase("ready")) {
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
+                waiting.remove(player);
+                player.setPlayerListName("[READY] " + player.getName());
+                server.broadcastMessage(player.getName() + " is now ready.");
+                if (waiting.isEmpty()) {
+                    if (server.getOnlinePlayers().size() > 1)
+                        this.start((int) (Math.sqrt(players.size()) * 400));
+                    else
+                        sender.sendMessage("Ultra Hardcore requires a minimum of two players.");
                 }
-                return true;
-            } else if (args[0].equalsIgnoreCase("stop")) {
-                if (!inProgress)
-                    sender.sendMessage("There is no game in progress.");
-                else
-                    this.stop();
-                return true;
+
+            } else {
+                sender.sendMessage("Only players can mark themselves as ready.");
             }
+            return true;
+        }
         return false;
     }
 
     @Override
     public void onEnable() {
+        // Initialize the potion effects list
+        for (PotionEffectType type : potionTypes)
+            potionEffects.add(new PotionEffect(type, Integer.MAX_VALUE, Byte.MAX_VALUE));
+        // Initialize the other class level fields
+        this.configuration = this.getConfig();
+        this.scoreboard = this.getServer().getScoreboardManager().getMainScoreboard();
+        this.server = this.getServer();
+        this.world = this.getServer().getWorld("world");
+        // Deal with the configuration file
         this.saveDefaultConfig();
-        configuration = this.getConfig();
         configuration.options().copyDefaults(true);
         this.saveConfig();
-        server = this.getServer();
-        scoreboard = server.getScoreboardManager().getMainScoreboard();
-        world = server.getWorld("world");
-        server.getPluginManager().registerEvents(this, this);
+        // Reset all of the scoreboard objectives
+        if (scoreboard.getObjective("deaths") != null)
+            scoreboard.getObjective("deaths").unregister();
+        if (scoreboard.getObjective("health") != null)
+            scoreboard.getObjective("health").unregister();
+        if (scoreboard.getObjective("kills") != null)
+            scoreboard.getObjective("kills").unregister();
+        // Prepare the server and world for pregame
         server.setDefaultGameMode(GameMode.SURVIVAL);
+        server.setSpawnRadius(32);
         world.setDifficulty(Difficulty.HARD);
         world.setGameRuleValue("naturalRegeneration", "true");
         world.setGameRuleValue("doDaylightCycle", "false");
         world.setGameRuleValue("doMobSpawning", "false");
+        world.setGameRuleValue("spectatorsGenerateChunks", "false");
         world.setFullTime(0);
-        for (Entity e : server.getWorld("world").getLivingEntities())
-            if (e instanceof Monster)
-                e.remove();
+        world.getWorldBorder().setCenter(world.getSpawnLocation().getX(), world.getSpawnLocation().getZ());
+        world.getWorldBorder().setSize(32);
+        for (Entity entity : server.getWorld("world").getLivingEntities())
+            if (entity instanceof Monster)
+                entity.remove();
+        // Set up the waiting list
+        waiting.addAll(server.getOnlinePlayers());
+        // Register for events
+        server.getPluginManager().registerEvents(this, this);
+    }
+
+    @Override
+    public void onDisable() {
+        this.stop();
     }
 
     @EventHandler
     public void onPlayerDeath(final PlayerDeathEvent event) {
-        if (!inProgress)
+        if (!this.isStarted)
             return;
-        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
-        SkullMeta skullMetadata = (SkullMeta) skull.getItemMeta();
-        skullMetadata.setOwner(event.getEntity().getName());
-        skullMetadata.setDisplayName(ChatColor.RESET + event.getEntity().getName());
-        skull.setItemMeta(skullMetadata);
-        event.getDrops().add(skull);
-        players.remove(event.getEntity());
+        this.players.remove(event.getEntity());
         event.getEntity().setGameMode(GameMode.SPECTATOR);
-        if (players.size() < 2) {
+        // Drop the skull of the killed player
+        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        SkullMeta meta = (SkullMeta) skull.getItemMeta();
+        meta.setOwner(event.getEntity().getName());
+        meta.setDisplayName(ChatColor.RESET + event.getEntity().getName());
+        skull.setItemMeta(meta);
+        event.getDrops().add(skull);
+        // End the game if only one player is left
+        if (players.size() == 1) {
+            // Launch a firework about the last player
             Firework firework = (Firework) world.spawnEntity(players.get(0).getLocation(), EntityType.FIREWORK);
             FireworkMeta fireworkMetadata = firework.getFireworkMeta();
             FireworkEffect fireworkEffect = FireworkEffect.builder().with(Type.BALL_LARGE).withColor(Color.YELLOW).withTrail().flicker(true).build();
             fireworkMetadata.addEffect(fireworkEffect);
             fireworkMetadata.setPower(0);
             firework.setFireworkMeta(fireworkMetadata);
-            for (Player p : server.getOnlinePlayers())
-                p.setGameMode(GameMode.SPECTATOR);
-            server.broadcastMessage(players.get(0).getName() + " is the winner!");
-            this.stop();
+            // End the game on the next tick after the death
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    server.broadcastMessage(players.get(0).getName() + " is the winner. Congratulations!");
+                    SimplyUHC.this.stop();
+                }
+            }.runTaskLater(this, 1);
         }
     }
 
     @EventHandler
-    public void onPlayerLogin(final PlayerLoginEvent event) {
-        if (inProgress && !players.contains(event.getPlayer()))
-            event.getPlayer().setGameMode(GameMode.SPECTATOR);
+    public void onPlayerJoin(final PlayerJoinEvent event) {
+        if (!this.isStarted) {
+            event.getPlayer().setGameMode(GameMode.SURVIVAL);
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    waiting.add(event.getPlayer());
+                    event.getPlayer().setPlayerListName("[NOT READY] " + event.getPlayer().getName());
+                    event.getPlayer().sendMessage("You are not ready. Send " + ChatColor.BOLD + "/ready" + ChatColor.RESET + " in chat to ready up.");
+                }
+            }.runTaskLater(this, 1);
+        } else {
+            if (!this.players.contains(event.getPlayer()))
+                event.getPlayer().setGameMode(GameMode.SPECTATOR);
+            else if (this.isPaused)
+                this.freezePlayer(event.getPlayer());
+        }
+    }
+
+    @EventHandler
+    public void onPlayerMove(final PlayerMoveEvent event) {
+        if (this.isPaused)
+            event.setCancelled(true);
     }
 
     private void clearInventory(Player player) {
@@ -194,52 +196,84 @@ public class SimplyUHC extends JavaPlugin implements Listener {
         player.setFoodLevel(20);
     }
 
-    private void freezePlayer(Player player, int ticks) {
-        ArrayList<PotionEffect> potions = new ArrayList<>();
-        for (PotionEffectType type : effects)
-            potions.add(new PotionEffect(type, ticks, Byte.MAX_VALUE));
-        player.addPotionEffects(potions);
+    private void freezePlayer(Player player) {
+        player.addPotionEffects(potionEffects);
     }
 
     private void healPlayer(Player player) {
         player.setHealth(player.getMaxHealth());
     }
 
-    private void start(int size, int countdown) {
+    private void start(int size) {
         players = new ArrayList<>(server.getOnlinePlayers());
+        // Set up the world border
         world.getWorldBorder().setCenter(world.getSpawnLocation().getX(), world.getSpawnLocation().getZ());
         world.getWorldBorder().setSize(size);
+        // Unprotect the spawn
+        server.setSpawnRadius(0);
+        // Spread the players throughout the world
         String[] names = new String[players.size()];
         for (int i = 0; i < names.length; ++i)
             names[i] = players.get(i).getName();
         int min = size / (int) (Math.sqrt(players.size()) + 1) - 1;
-        server.dispatchCommand(server.getConsoleSender(), "spreadplayers " + world.getSpawnLocation().getBlockX() + " " + world.getSpawnLocation().getBlockZ() + " " + min + " " + size / 2 + " false " + Joiner.on(' ').join(names));
+        int x = world.getSpawnLocation().getBlockX();
+        int z = world.getSpawnLocation().getBlockZ();
+        server.dispatchCommand(server.getConsoleSender(), "spreadplayers " + x + " " + z + " " + min + " " + size / 2 + " false " + Joiner.on(' ').join(names));
+        // Freeze all of the players
         for (Player p : players) {
             p.setGameMode(GameMode.SURVIVAL);
-            this.freezePlayer(p, countdown);
+            p.setPlayerListName(p.getName());
+            this.freezePlayer(p);
+            server.dispatchCommand(server.getConsoleSender(), "title " + p.getName() + " title {\"text\":\"Get ready!\"}");
+            server.dispatchCommand(server.getConsoleSender(), "title " + p.getName() + " subtitle {\"text\":\"Game begins in 15 seconds...\"}");
         }
-        server.broadcastMessage("Game begins in " + countdown / 20 + " seconds... Get ready!");
-        timer = new Timer();
-        timer.scheduleAtFixedRate(new SimplyTimer(), countdown / 20 * 1000, 600000);
-        inProgress = true;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                server.broadcastMessage("The game has started.");
+                // Unfreeze and reset all of the players
+                for (Player p : players) {
+                    SimplyUHC.this.healPlayer(p);
+                    SimplyUHC.this.feedPlayer(p);
+                    SimplyUHC.this.clearInventory(p);
+                    SimplyUHC.this.unfreezePlayer(p);
+                    server.dispatchCommand(server.getConsoleSender(), "title " + p.getName() + " title {\"text\":\"Go go go!\"}");
+                    server.dispatchCommand(server.getConsoleSender(), "title " + p.getName() + " subtitle {\"text\":\"Good luck and have fun...\"}");
+                }
+                // Prepare the server and world for the game
+                world.setGameRuleValue("naturalRegeneration", "false");
+                world.setGameRuleValue("doDaylightCycle", "true");
+                world.setGameRuleValue("doMobSpawning", "true");
+                // Set up all of the scoreboard objectives
+                scoreboard.registerNewObjective("deaths", "deathCount");
+                scoreboard.getObjective("deaths").setDisplayName("Deaths");
+                scoreboard.registerNewObjective("health", "health");
+                scoreboard.getObjective("health").setDisplayName("Health");
+                scoreboard.registerNewObjective("kills", "totalPlayerKills");
+                scoreboard.getObjective("kills").setDisplayName("Kills");
+                if (configuration.getString("display.belowName") != null)
+                    scoreboard.getObjective(configuration.getString("display.belowName")).setDisplaySlot(DisplaySlot.BELOW_NAME);
+                if (configuration.getString("display.list") != null)
+                    scoreboard.getObjective(configuration.getString("display.list")).setDisplaySlot(DisplaySlot.PLAYER_LIST);
+                if (configuration.getString("display.sidebar") != null)
+                    scoreboard.getObjective(configuration.getString("display.sidebar")).setDisplaySlot(DisplaySlot.SIDEBAR);
+            }
+        }.runTaskLater(this, 300);
     }
 
     private void stop() {
-        server.broadcastMessage("The game has been stopped.");
-        inProgress = false;
-        players.clear();
-        timer.cancel();
-        world.setGameRuleValue("naturalRegeneration", "true");
-        world.setGameRuleValue("doDaylightCycle", "false");
-        world.setGameRuleValue("doMobSpawning", "false");
-        world.setFullTime(0);
-        scoreboard.getObjective("deaths").unregister();
-        scoreboard.getObjective("health").unregister();
-        scoreboard.getObjective("kills").unregister();
+        server.broadcastMessage("The game has stopped.");
+        this.isStarted = false;
+        this.players.clear();
+        // Prepare the server and world for postgame
+        server.setDefaultGameMode(GameMode.SPECTATOR);
+        for (Player p : server.getOnlinePlayers())
+            p.setGameMode(GameMode.SPECTATOR);
     }
 
     private void unfreezePlayer(Player player) {
-        for (PotionEffectType type : effects)
+        for (PotionEffectType type : potionTypes)
             player.removePotionEffect(type);
     }
+
 }

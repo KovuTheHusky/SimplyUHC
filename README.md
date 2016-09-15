@@ -4,16 +4,17 @@ A plugin for Bukkit servers that is a lightweight, easy way to play Minecraft Ul
 
 ## Features
 
-* Handles game rules including game mode, difficulty, and natural regeneration.
-* Sets up a world border and spreads players within the game area.
-* Drops player heads upon death and sets dead players to spectator mode.
+* Automatically handles **game rules** including game mode, difficulty, and natural regeneration.
+* Allows configuration of **scoreboard** data, including health, kills, or deaths.
+* Sets up a **world border** and **spreads players** within the game area.
+* Keeps **players frozen before the game starts** while chunks are generating.
+* Drops **player heads** upon death and sets dead players to spectator mode.
 
 ## Commands
 
-Just use the following commands to start and stop matches:
+Each player must ready up with the following command:
 
-* `/uhc start <radius> [countdown]`
-* `/uhc stop`
+* `/ready`
 
 ## Configuration
 

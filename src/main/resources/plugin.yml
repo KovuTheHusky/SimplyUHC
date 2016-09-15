@@ -2,8 +2,5 @@ name: SimplyUHC
 main: com.codeski.simplyuhc.SimplyUHC
 version: @version@
 commands:
-  uhc:
-    description: Stop or start an Ultra Hardcore game
-    usage: /uhc \<command\> [arguments]
-    permission: simplyuhc.op
-    permission-message: You do not have permission.
+  ready:
+    description: Ready up for a Ultra Hardcore game.
