@@ -7,6 +7,7 @@ import java.util.TimerTask;
 import com.google.common.base.Joiner;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
+import org.bukkit.Difficulty;
 import org.bukkit.FireworkEffect;
 import org.bukkit.FireworkEffect.Type;
 import org.bukkit.GameMode;
@@ -31,6 +32,8 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Scoreboard;
 
 public class SimplyUHC extends JavaPlugin implements Listener {
     private class SimplyTimer extends TimerTask {
@@ -51,18 +54,21 @@ public class SimplyUHC extends JavaPlugin implements Listener {
                     SimplyUHC.this.clearInventory(p);
                     SimplyUHC.this.unfreezePlayer(p);
                 }
-                server.dispatchCommand(console, "gamerule naturalRegeneration false");
-                server.dispatchCommand(console, "gamerule doDaylightCycle true");
-                server.dispatchCommand(console, "gamerule doMobSpawning true");
-                server.dispatchCommand(console, "scoreboard objectives add deaths deathCount Deaths");
-                server.dispatchCommand(console, "scoreboard objectives add health health Health");
-                server.dispatchCommand(console, "scoreboard objectives add kills totalPlayerKills Kills");
+                world.setGameRuleValue("naturalRegeneration", "true");
+                world.setGameRuleValue("doDaylightCycle", "false");
+                world.setGameRuleValue("doMobSpawning", "false");
+                scoreboard.registerNewObjective("deaths", "deathCount");
+                scoreboard.getObjective("deaths").setDisplayName("Deaths");
+                scoreboard.registerNewObjective("health", "health");
+                scoreboard.getObjective("health").setDisplayName("Health");
+                scoreboard.registerNewObjective("kills", "totalPlayerKills");
+                scoreboard.getObjective("kills").setDisplayName("Kills");
                 if (configuration.getString("display.belowName") != null)
-                    server.dispatchCommand(console, "scoreboard objectives setdisplay belowName " + configuration.getString("display.belowName"));
+                    scoreboard.getObjective(configuration.getString("display.belowName")).setDisplaySlot(DisplaySlot.BELOW_NAME);
                 if (configuration.getString("display.list") != null)
-                    server.dispatchCommand(console, "scoreboard objectives setdisplay list " + configuration.getString("display.list"));
+                    scoreboard.getObjective(configuration.getString("display.list")).setDisplaySlot(DisplaySlot.PLAYER_LIST);
                 if (configuration.getString("display.sidebar") != null)
-                    server.dispatchCommand(console, "scoreboard objectives setdisplay sidebar " + configuration.getString("display.sidebar"));
+                    scoreboard.getObjective(configuration.getString("display.sidebar")).setDisplaySlot(DisplaySlot.SIDEBAR);
                 server.broadcastMessage("The game has been started. Good luck!");
             }
             ++count;
@@ -70,7 +76,6 @@ public class SimplyUHC extends JavaPlugin implements Listener {
     }
 
     private FileConfiguration configuration;
-    private CommandSender console;
     private final PotionEffectType[] effects = {
         PotionEffectType.SLOW,
         PotionEffectType.SLOW_DIGGING,
@@ -87,6 +92,7 @@ public class SimplyUHC extends JavaPlugin implements Listener {
     private boolean inProgress = false;
     private ArrayList<Player> players;
     private Server server;
+    private Scoreboard scoreboard;
     private Timer timer;
     private World world;
 
@@ -132,15 +138,15 @@ public class SimplyUHC extends JavaPlugin implements Listener {
         configuration.options().copyDefaults(true);
         this.saveConfig();
         server = this.getServer();
-        console = server.getConsoleSender();
+        scoreboard = server.getScoreboardManager().getMainScoreboard();
         world = server.getWorld("world");
         server.getPluginManager().registerEvents(this, this);
-        server.dispatchCommand(console, "defaultgamemode survival");
-        server.dispatchCommand(console, "difficulty hard");
-        server.dispatchCommand(console, "gamerule naturalRegeneration true");
-        server.dispatchCommand(console, "gamerule doDaylightCycle false");
-        server.dispatchCommand(console, "gamerule doMobSpawning false");
-        server.dispatchCommand(console, "time set 6000");
+        server.setDefaultGameMode(GameMode.SURVIVAL);
+        world.setDifficulty(Difficulty.HARD);
+        world.setGameRuleValue("naturalRegeneration", "true");
+        world.setGameRuleValue("doDaylightCycle", "false");
+        world.setGameRuleValue("doMobSpawning", "false");
+        world.setFullTime(0);
         for (Entity e : server.getWorld("world").getLivingEntities())
             if (e instanceof Monster)
                 e.remove();
@@ -201,12 +207,12 @@ public class SimplyUHC extends JavaPlugin implements Listener {
 
     private void start(int size, int countdown) {
         players = new ArrayList<>(server.getOnlinePlayers());
-        server.dispatchCommand(console, "worldborder set " + size);
+        world.getWorldBorder().setSize(size);
         String[] names = new String[players.size()];
         for (int i = 0; i < names.length; ++i)
             names[i] = players.get(i).getName();
         int min = size / (int) (Math.sqrt(players.size()) + 1) - 1;
-        server.dispatchCommand(console, "spreadplayers " + world.getSpawnLocation().getBlockX() + " " + world.getSpawnLocation().getBlockZ() + " " + min + " " + size / 2 + " false " + Joiner.on(' ').join(names));
+        server.dispatchCommand(server.getConsoleSender(), "spreadplayers " + world.getSpawnLocation().getBlockX() + " " + world.getSpawnLocation().getBlockZ() + " " + min + " " + size / 2 + " false " + Joiner.on(' ').join(names));
         for (Player p : players) {
             p.setGameMode(GameMode.SURVIVAL);
             this.freezePlayer(p, countdown);
@@ -222,13 +228,13 @@ public class SimplyUHC extends JavaPlugin implements Listener {
         inProgress = false;
         players.clear();
         timer.cancel();
-        server.dispatchCommand(console, "gamerule naturalRegeneration true");
-        server.dispatchCommand(console, "gamerule doDaylightCycle false");
-        server.dispatchCommand(console, "gamerule doMobSpawning false");
-        server.dispatchCommand(console, "time set 0");
-        server.dispatchCommand(console, "scoreboard objectives remove deaths");
-        server.dispatchCommand(console, "scoreboard objectives remove health");
-        server.dispatchCommand(console, "scoreboard objectives remove kills");
+        world.setGameRuleValue("naturalRegeneration", "true");
+        world.setGameRuleValue("doDaylightCycle", "false");
+        world.setGameRuleValue("doMobSpawning", "false");
+        world.setFullTime(0);
+        scoreboard.getObjective("deaths").unregister();
+        scoreboard.getObjective("health").unregister();
+        scoreboard.getObjective("kills").unregister();
     }
 
     private void unfreezePlayer(Player player) {
