@@ -1,4 +1,4 @@
-# SimplyUHC [![Build Status](https://travis-ci.org/Codeski/SimplyUHC.svg?branch=master)](https://travis-ci.org/Codeski/SimplyUHC)
+# SimplyUHC [![Build Status](https://travis-ci.org/KovuTheHusky/SimplyUHC.svg?branch=master)](https://travis-ci.org/KovuTheHusky/SimplyUHC)
 
 A plugin for Bukkit servers that is a lightweight, easy way to play Minecraft Ultra Hardcore with friends.
 
@@ -36,8 +36,8 @@ You can also place a hash in front of any of the nodes to comment it out and dis
 
 ## Links
 
-* Website: <http://codeski.com/#simplyuhc>
-* Issues: <https://github.com/Codeski/SimplyUHC/issues>
-* Source: <https://github.com/Codeski/SimplyUHC>
-* Builds: <https://travis-ci.org/Codeski/SimplyUHC>
+* Website: <https://kovuthehusky.com/projects#simplyuhc>
+* Issues: <https://github.com/KovuTheHusky/SimplyUHC/issues>
+* Source: <https://github.com/KovuTheHusky/SimplyUHC>
+* Builds: <https://travis-ci.org/KovuTheHusky/SimplyUHC>
 * Bukkit: <http://dev.bukkit.org/bukkit-plugins/simplyuhc>
