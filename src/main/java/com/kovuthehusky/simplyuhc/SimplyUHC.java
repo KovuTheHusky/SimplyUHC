@@ -1,4 +1,4 @@
-package com.codeski.simplyuhc;
+package com.kovuthehusky.simplyuhc;
 
 import java.util.ArrayList;
 import java.util.List;

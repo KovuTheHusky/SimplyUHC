@@ -1,5 +1,5 @@
 name: SimplyUHC
-main: com.codeski.simplyuhc.SimplyUHC
+main: com.kovuthehusky.simplyuhc.SimplyUHC
 version: @version@
 commands:
   ready:

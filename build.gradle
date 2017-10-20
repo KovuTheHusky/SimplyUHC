@@ -6,7 +6,7 @@ plugins {
   id 'idea'
 }
 
-group = 'com.codeski'
+group = 'com.kovuthehusky'
 version = '1.0.2-SNAPSHOT'
 sourceCompatibility = '1.8'
 
