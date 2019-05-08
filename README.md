@@ -39,5 +39,5 @@ You can also place a hash in front of any of the nodes to comment it out and dis
 * Website: <https://kovuthehusky.com/projects#simplyuhc>
 * Issues: <https://github.com/KovuTheHusky/SimplyUHC/issues>
 * Source: <https://github.com/KovuTheHusky/SimplyUHC>
-* Builds: <https://travis-ci.org/KovuTheHusky/SimplyUHC>
+* Builds: <https://travis-ci.com/KovuTheHusky/SimplyUHC>
 * Bukkit: <http://dev.bukkit.org/bukkit-plugins/simplyuhc>
