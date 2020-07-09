@@ -134,9 +134,9 @@ public class SimplyUHC extends JavaPlugin implements Listener {
         this.players.remove(event.getEntity());
         event.getEntity().setGameMode(GameMode.SPECTATOR);
         // Drop the skull of the killed player
-        ItemStack skull = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
         SkullMeta meta = (SkullMeta) skull.getItemMeta();
-        meta.setOwner(event.getEntity().getName());
+        meta.setOwningPlayer(event.getEntity());
         meta.setDisplayName(ChatColor.RESET + event.getEntity().getName());
         skull.setItemMeta(meta);
         event.getDrops().add(skull);
