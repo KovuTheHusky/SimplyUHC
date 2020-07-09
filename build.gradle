@@ -21,7 +21,6 @@ dependencies {
 }
 
 repositories {
-  maven {
-    url 'https://hub.spigotmc.org/nexus/content/groups/public/'
-  }
+  mavenCentral()
+  maven { url 'https://hub.spigotmc.org/nexus/content/groups/public/' }
 }
